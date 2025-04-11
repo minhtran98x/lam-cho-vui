@@ -56,9 +56,31 @@ const http = require("http");
 
 const express = require("express");
 
-const app = express();
+const app = express(); // Create an Express application
 
-const server = http.createServer(app);
+app.use("/", (req, res, next) => {
+  console.log("in the middleware"); // Log when the middleware is executed
+  //   console.log(req.url, req.method, req.body); // Log the request URL, method, and body
+  next(); // Call the next middleware function in the stack
+});
 
+app.use("/add-product", (req, res, next) => {
+  console.log("in another middleware"); // Log when the second middleware is executed
+  res.send("<h1>Hello from Express!</h1>"); // Send a response to the client
+});
+
+app.use((req, res, next) => {
+  console.log("in the middleware"); // Log when the middleware is executed
+  //   console.log(req.url, req.method, req.body); // Log the request URL, method, and body
+});
+
+app.use((req, res, next) => {
+  console.log(
+    "in another middleware" // Log when the second middleware is executed
+  );
+  res.send("<h1>Hello from Express!</h1>"); // Send a response to the client
+});
+
+const server = http.createServer(app); // Create an HTTP server using the Express application
 
 server.listen(3000);
