@@ -53,32 +53,28 @@
 // server.listen(3000);
 
 const http = require("http");
+const bodyParser = require("body-parser"); // Import the body-parser middleware
 
 const express = require("express");
 
 const app = express(); // Create an Express application
 
-app.use("/", (req, res, next) => {
-  console.log("in the middleware"); // Log when the middleware is executed
-  //   console.log(req.url, req.method, req.body); // Log the request URL, method, and body
-  next(); // Call the next middleware function in the stack
-});
+const adminRoutes = require("./routes/admin"); // Import the admin routes
+const shopRoutes = require("./routes/shop"); // Import the shop routes
 
-app.use("/add-product", (req, res, next) => {
-  console.log("in another middleware"); // Log when the second middleware is executed
-  res.send("<h1>Hello from Express!</h1>"); // Send a response to the client
-});
+app.use(bodyParser.urlencoded({ extended: false })); // Use body-parser middleware to parse URL-encoded data
+app.use(express.json());
 
+app.use("/admin", adminRoutes); // Use the admin routes for any requests starting with "/admin"
+app.use(shopRoutes); // Use the shop routes for any requests starting with "/shop"
+
+// ✅ Middleware 404 - đặt CUỐI CÙNG, sau tất cả route khác
 app.use((req, res, next) => {
-  console.log("in the middleware"); // Log when the middleware is executed
-  //   console.log(req.url, req.method, req.body); // Log the request URL, method, and body
-});
-
-app.use((req, res, next) => {
-  console.log(
-    "in another middleware" // Log when the second middleware is executed
-  );
-  res.send("<h1>Hello from Express!</h1>"); // Send a response to the client
+  res.status(404).send(`
+    <h1 style="font-family:sans-serif; color:crimson;">404 - Page Not Found</h1>
+    <p>The page <strong>${req.originalUrl}</strong> does not exist.</p>
+    <a href="/admin/add-product">← Back to Add Product</a>
+  `);
 });
 
 const server = http.createServer(app); // Create an HTTP server using the Express application
